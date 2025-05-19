@@ -47,7 +47,7 @@ if os.path.exists(USERS_FILE):
 @bot.event
 async def on_message(message):
     if message.author.bot:
-        # Handle p2assistant messages (starboard)
+        # Handle p2assistant messages (starboard and stats)
         if message.author.id == 854233015475109888:
             if "Rare ping:" in message.content or "Regional ping:" in message.content:
                 if message.reference and message.reference.message_id:
@@ -62,10 +62,22 @@ async def on_message(message):
                                 await starboard.send(embed=embed)
                     except:
                         pass
-        # Handle Poketwo egg messages
+            # Handle stats message
+            elif ":" in message.content and "Best name" in message.content:
+                try:
+                    content_after_colon = message.content.split(":", 1)[1].strip()
+                    await message.channel.edit(topic=content_after_colon)
+                except:
+                    pass
+        # Handle Poketwo messages
         elif message.author.id == 716390085896962058:
             if "in the daycare have produced" in message.content:
                 await message.channel.send("<@1131217949672353832> You got an Egg! 🥚🥚🥚")
+            elif "Congratulations" in message.content and "You caught a" in message.content:
+                try:
+                    await message.channel.edit(topic="")
+                except:
+                    pass
         return
 
     # Check for project-username pattern
@@ -148,7 +160,8 @@ async def cmd(ctx):
         ("remove", "Stops the auto-message in the current channel"),
         ("runstatus", "Shows channels with active auto-messages"),
         ("check", "Checks if a user has 'special access' role"),
-        ("listremove", "Removes an item from the project list by index")
+        ("listremove", "Removes an item from the project list by index"),
+        ("clear", "Clears channel topics in the server")
     ]
     
     for cmd_name, description in commands_list:
@@ -263,6 +276,23 @@ async def check(ctx, user: discord.Member):
     else:
         await ctx.send(f"{user.name} doesn't have 'special access' in any server.")
 
+@bot.command(name='clear')
+async def clear(ctx):
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send("This command is only available for administrators!")
+        return
+        
+    success = 0
+    failed = 0
+    for channel in ctx.guild.text_channels:
+        try:
+            await channel.edit(topic="")
+            success += 1
+        except:
+            failed += 1
+            
+    await ctx.send(f"Cleared {success} channel topics. Failed to clear {failed} channels.")
+
 @bot.command(name='listremove')
 async def listremove(ctx, index: int):
     server_id = str(ctx.guild.id)
@@ -283,4 +313,3 @@ async def listremove(ctx, index: int):
 
 # Run the bot
 bot.run(os.getenv('DISCORD_TOKEN'))
-
