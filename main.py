@@ -73,12 +73,14 @@ async def on_message(message):
         elif message.author.id == 716390085896962058:
             if "in the daycare have produced" in message.content:
                 await message.channel.send("<@1131217949672353832> You got an Egg! 🥚🥚🥚")
-            elif "Congratulations" in message.content and "You caught a" in message.content:
-                try:
-                    await message.channel.edit(topic="")
-                except:
-                    pass
-        return
+            return
+        # Handle congratulations message
+        if "Congratulations" in message.content and "You caught a" in message.content and message.author.id == 716390085896962058:
+            try:
+                await message.channel.edit(topic="")
+            except:
+                pass
+            return
 
     # Check for project-username pattern
     lines = message.content.split('\n')
