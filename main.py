@@ -52,8 +52,12 @@ async def clear(ctx):
 
     await ctx.send(f"Cleared {success} channel topics. Failed to clear {failed} channels.")
 
-@bot.command(name='say')
+@commands.command(name='say')
 async def say(ctx, limit: int = None):
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send("This command is only available for administrators!")
+        return
+        
     channels = ctx.guild.text_channels
     current_channel_pos = ctx.channel.position
 
@@ -72,5 +76,8 @@ async def say(ctx, limit: int = None):
                 pass
 
     await ctx.send(f"Sent messages in {sent_count} channels.")
+
+# Add the command to the bot
+bot.add_command(say)
 
 bot.run(os.getenv('DISCORD_TOKEN'))
