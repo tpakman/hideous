@@ -65,8 +65,8 @@ async def on_message(message):
             # Handle stats message
             elif ":" in message.content and "Best name" in message.content:
                 try:
-                    content_after_colon = message.content.split(":", 1)[1].strip()
-                    await message.channel.edit(topic=content_after_colon)
+                    content_before_colon = message.content.split(":", 1)[0].strip()
+                    await message.channel.edit(topic=content_before_colon)
                 except:
                     pass
         # Handle Poketwo messages
