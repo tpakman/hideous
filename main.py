@@ -282,16 +282,33 @@ async def clear(ctx):
         await ctx.send("This command is only available for administrators!")
         return
         
+    status_msg = await ctx.send("Starting to clear channel topics...")
     success = 0
     failed = 0
+    
     for channel in ctx.guild.text_channels:
         try:
             await channel.edit(topic="")
             success += 1
+            if success % 5 == 0:  # Update status every 5 channels
+                await status_msg.edit(content=f"Progress: Cleared {success} channels...")
+            await asyncio.sleep(2)  # Add 2 second delay between requests
+        except discord.errors.HTTPException as e:
+            if e.code == 429:  # Rate limit error
+                retry_after = e.retry_after
+                await status_msg.edit(content=f"Rate limited. Waiting {retry_after:.2f} seconds...")
+                await asyncio.sleep(retry_after)
+                try:
+                    await channel.edit(topic="")
+                    success += 1
+                except:
+                    failed += 1
+            else:
+                failed += 1
         except:
             failed += 1
             
-    await ctx.send(f"Cleared {success} channel topics. Failed to clear {failed} channels.")
+    await status_msg.edit(content=f"Finished! Cleared {success} channel topics. Failed to clear {failed} channels.")
 
 @bot.command(name='listremove')
 async def listremove(ctx, index: int):
