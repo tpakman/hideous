@@ -282,17 +282,22 @@ async def clear(ctx):
         await ctx.send("This command is only available for administrators!")
         return
         
-    status_msg = await ctx.send("Starting to clear channel topics...")
+    status_msg = await ctx.send("Checking channels with topics...")
     success = 0
     failed = 0
     
-    for channel in ctx.guild.text_channels:
+    channels_with_topics = [channel for channel in ctx.guild.text_channels if channel.topic]
+    if not channels_with_topics:
+        await status_msg.edit(content="No channels with topics found!")
+        return
+        
+    await status_msg.edit(content=f"Found {len(channels_with_topics)} channels with topics. Clearing...")
+    
+    for channel in channels_with_topics:
         try:
             await channel.edit(topic="")
             success += 1
-            if success % 5 == 0:  # Update status every 5 channels
-                await status_msg.edit(content=f"Progress: Cleared {success} channels...")
-            await asyncio.sleep(2)  # Add 2 second delay between requests
+            await asyncio.sleep(1)  # Reduced delay since we're processing fewer channels
         except discord.errors.HTTPException as e:
             if e.code == 429:  # Rate limit error
                 retry_after = e.retry_after
