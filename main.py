@@ -30,15 +30,20 @@ async def on_message(message):
     await bot.process_commands(message)
 
 @bot.command(name='clear')
-async def clear(ctx):
+async def clear(ctx, limit: int = None):
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("This command is only available for administrators!")
         return
 
-    channels_with_topics = [channel for channel in ctx.guild.text_channels if channel.topic]
+    current_channel_pos = ctx.channel.position
+    channels_with_topics = [c for c in ctx.guild.text_channels if c.topic and c.position >= current_channel_pos]
+    
     if not channels_with_topics:
         await ctx.send("No channels with topics found!")
         return
+
+    if limit:
+        channels_with_topics = channels_with_topics[:limit]
 
     success = 0
     failed = 0
