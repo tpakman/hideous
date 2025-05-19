@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import os
+import asyncio
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -52,6 +53,7 @@ async def clear(ctx, limit: int = None):
         try:
             await channel.edit(topic="")
             success += 1
+            await asyncio.sleep(1)  # 1 second delay
         except:
             failed += 1
 
@@ -77,6 +79,7 @@ async def say(ctx, limit: int = None):
             try:
                 await channel.send(channel.topic)
                 sent_count += 1
+                await asyncio.sleep(1)  # 1 second delay
             except:
                 pass
 
